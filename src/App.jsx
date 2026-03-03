@@ -1,25 +1,63 @@
 import { useState, useEffect, useRef } from "react";
 
+// function useTyping(words, speed = 80, pause = 1800) {
+//   const [text, setText] = useState("");
+//   const [wordIdx, setWordIdx] = useState(0);
+//   const [charIdx, setCharIdx] = useState(0);
+//   const [deleting, setDeleting] = useState(false);
+//   useEffect(() => {
+//     const current = words[wordIdx];
+//     const timeout = setTimeout(() => {
+//       if (!deleting) {
+//         setText(current.slice(0, charIdx + 1));
+//         if (charIdx + 1 === current.length) setTimeout(() => setDeleting(true), pause);
+//         else setCharIdx((c) => c + 1);
+//       } else {
+//         setText(current.slice(0, charIdx - 1));
+//         if (charIdx - 1 === 0) { setDeleting(false); setWordIdx((w) => (w + 1) % words.length); setCharIdx(0); }
+//         else setCharIdx((c) => c - 1);
+//       }
+//     }, deleting ? speed / 2 : speed);
+//     return () => clearTimeout(timeout);
+//   }, [charIdx, deleting, wordIdx, words, speed, pause]);
+//   return text;
+// }
 function useTyping(words, speed = 80, pause = 1800) {
   const [text, setText] = useState("");
   const [wordIdx, setWordIdx] = useState(0);
   const [charIdx, setCharIdx] = useState(0);
   const [deleting, setDeleting] = useState(false);
+
   useEffect(() => {
     const current = words[wordIdx];
-    const timeout = setTimeout(() => {
-      if (!deleting) {
+
+    if (!deleting && charIdx < current.length) {
+      const t = setTimeout(() => {
         setText(current.slice(0, charIdx + 1));
-        if (charIdx + 1 === current.length) setTimeout(() => setDeleting(true), pause);
-        else setCharIdx((c) => c + 1);
-      } else {
+        setCharIdx((c) => c + 1);
+      }, speed);
+      return () => clearTimeout(t);
+    }
+
+    if (!deleting && charIdx === current.length) {
+      const t = setTimeout(() => setDeleting(true), pause);
+      return () => clearTimeout(t);
+    }
+
+    if (deleting && charIdx > 0) {
+      const t = setTimeout(() => {
         setText(current.slice(0, charIdx - 1));
-        if (charIdx - 1 === 0) { setDeleting(false); setWordIdx((w) => (w + 1) % words.length); setCharIdx(0); }
-        else setCharIdx((c) => c - 1);
-      }
-    }, deleting ? speed / 2 : speed);
-    return () => clearTimeout(timeout);
+        setCharIdx((c) => c - 1);
+      }, speed / 2);
+      return () => clearTimeout(t);
+    }
+
+    if (deleting && charIdx === 0) {
+      setDeleting(false);
+      setWordIdx((w) => (w + 1) % words.length);
+    }
   }, [charIdx, deleting, wordIdx, words, speed, pause]);
+
   return text;
 }
 
@@ -265,7 +303,7 @@ export default function Portfolio() {
           </div>
         </div>
         <div style={{ position: "absolute", bottom: "2rem", left: "50%", transform: "translateX(-50%)", display: "flex", flexDirection: "column", alignItems: "center", gap: "0.5rem", opacity: heroLoaded ? 0.5 : 0, transition: "opacity 1s ease 1.5s" }}>
-          <span style={{ fontFamily: "monospace", fontSize: "0.65rem", color: textSecondary, letterSpacing: "0.15em" }}>SCROLL</span>
+          {/* <span style={{ fontFamily: "monospace", fontSize: "0.65rem", color: textSecondary, letterSpacing: "0.15em" }}>SCROLL</span> */}
           <div style={{ width: 1, height: 40, background: "linear-gradient(to bottom, #818cf8, transparent)", animation: "slideDown 2s ease-in-out infinite" }} />
         </div>
       </section>
@@ -292,7 +330,7 @@ export default function Portfolio() {
               </div>
             </div>
             <div>
-              <p style={{ fontFamily: "monospace", fontSize: "0.8rem", color: "#818cf8", letterSpacing: "0.15em", marginBottom: "0.75rem" }}>// ABOUT.ME</p>
+              <p style={{ fontFamily: "monospace", fontSize: "0.8rem", color: "#818cf8", letterSpacing: "0.15em", marginBottom: "0.75rem" }}>ABOUT.ME</p>
               <h2 style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 900, fontSize: "clamp(2rem, 5vw, 3.5rem)", lineHeight: 1, color: textPrimary, marginBottom: "1.5rem" }}>
                 Building the<br /><span style={{ background: "linear-gradient(135deg, #818cf8, #c084fc)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>future, one</span><br />commit at a time
               </h2>
@@ -322,13 +360,13 @@ export default function Portfolio() {
       {/* SKILLS */}
       <section id="skills" style={{ position: "relative", zIndex: 1, borderTop: `1px solid ${borderColor}`, borderBottom: `1px solid ${borderColor}`, background: darkMode ? "rgba(129,140,248,0.02)" : "rgba(99,102,241,0.02)" }}>
         <div ref={skillsRef} style={{ maxWidth: 1100, margin: "0 auto", padding: "8rem 2rem", opacity: skillsVisible ? 1 : 0, transform: skillsVisible ? "none" : "translateY(40px)", transition: "all 0.9s ease" }}>
-          <p style={{ fontFamily: "monospace", fontSize: "0.8rem", color: "#818cf8", letterSpacing: "0.15em", marginBottom: "0.75rem" }}>// SKILL.SET</p>
+          <p style={{ fontFamily: "monospace", fontSize: "0.8rem", color: "#818cf8", letterSpacing: "0.15em", marginBottom: "0.75rem" }}>SKILL.SET</p>
           <h2 style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 900, fontSize: "clamp(2rem, 5vw, 3.5rem)", color: textPrimary, marginBottom: "3rem" }}>Tech Arsenal</h2>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: "1.25rem", marginBottom: "3rem" }}>
             {SKILLS.map((s, i) => <SkillCard key={s.name} skill={s} visible={skillsVisible} index={i} darkMode={darkMode} />)}
           </div>
           <div>
-            <p style={{ fontFamily: "monospace", fontSize: "0.75rem", color: textSecondary, marginBottom: "1rem", letterSpacing: "0.1em" }}>// SOFT.SKILLS + LANGUAGES</p>
+            <p style={{ fontFamily: "monospace", fontSize: "0.75rem", color: textSecondary, marginBottom: "1rem", letterSpacing: "0.1em" }}>SOFT.SKILLS + LANGUAGES</p>
             <div style={{ display: "flex", flexWrap: "wrap", gap: "0.6rem" }}>
               {["Communication","Team Leadership","Adaptability","Time Management","Collaboration","English","Nepali","Hindi"].map((s, i) => (
                 <span key={s} style={{ background: i < 5 ? "rgba(129,140,248,0.08)" : "rgba(192,132,252,0.08)", border: `1px solid ${i < 5 ? "rgba(129,140,248,0.25)" : "rgba(192,132,252,0.25)"}`, color: i < 5 ? "#818cf8" : "#c084fc", padding: "0.35rem 1rem", borderRadius: "999px", fontSize: "0.8rem", fontFamily: "'Rajdhani', sans-serif", fontWeight: 600, letterSpacing: "0.05em" }}>{s}</span>
@@ -341,7 +379,7 @@ export default function Portfolio() {
       {/* PROJECTS */}
       <section id="projects" style={{ position: "relative", zIndex: 1 }}>
         <div ref={projectsRef} style={{ maxWidth: 1100, margin: "0 auto", padding: "8rem 2rem", opacity: projectsVisible ? 1 : 0, transform: projectsVisible ? "none" : "translateY(40px)", transition: "all 0.9s ease" }}>
-          <p style={{ fontFamily: "monospace", fontSize: "0.8rem", color: "#818cf8", letterSpacing: "0.15em", marginBottom: "0.75rem" }}>// MY.BUILDS</p>
+          <p style={{ fontFamily: "monospace", fontSize: "0.8rem", color: "#818cf8", letterSpacing: "0.15em", marginBottom: "0.75rem" }}>MY.BUILDS</p>
           <h2 style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 900, fontSize: "clamp(2rem, 5vw, 3.5rem)", color: textPrimary, marginBottom: "2.5rem" }}>Featured Projects</h2>
           <div style={{ display: "flex", gap: "0.6rem", marginBottom: "2.5rem", flexWrap: "wrap" }}>
             {["All","Web","Mobile","AI"].map((f) => (
@@ -357,7 +395,7 @@ export default function Portfolio() {
       {/* TIMELINE */}
       <section id="timeline" style={{ position: "relative", zIndex: 1, borderTop: `1px solid ${borderColor}`, background: darkMode ? "rgba(129,140,248,0.02)" : "rgba(99,102,241,0.02)" }}>
         <div ref={timelineRef} style={{ maxWidth: 800, margin: "0 auto", padding: "8rem 2rem", opacity: timelineVisible ? 1 : 0, transform: timelineVisible ? "none" : "translateY(40px)", transition: "all 0.9s ease" }}>
-          <p style={{ fontFamily: "monospace", fontSize: "0.8rem", color: "#818cf8", letterSpacing: "0.15em", marginBottom: "0.75rem" }}>// MY.JOURNEY</p>
+          <p style={{ fontFamily: "monospace", fontSize: "0.8rem", color: "#818cf8", letterSpacing: "0.15em", marginBottom: "0.75rem" }}>MY.JOURNEY</p>
           <h2 style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 900, fontSize: "clamp(2rem, 5vw, 3.5rem)", color: textPrimary, marginBottom: "4rem" }}>Experience & Education</h2>
           <div style={{ position: "relative", paddingLeft: "3rem" }}>
             <div style={{ position: "absolute", left: "0.9rem", top: 0, bottom: 0, width: 1, background: "linear-gradient(to bottom, #818cf8, #c084fc, transparent)" }} />
@@ -384,7 +422,7 @@ export default function Portfolio() {
       {/* CONTACT */}
       <section id="contact" style={{ position: "relative", zIndex: 1, borderTop: `1px solid ${borderColor}` }}>
         <div ref={contactRef} style={{ maxWidth: 720, margin: "0 auto", padding: "8rem 2rem", opacity: contactVisible ? 1 : 0, transform: contactVisible ? "none" : "translateY(40px)", transition: "all 0.9s ease" }}>
-          <p style={{ fontFamily: "monospace", fontSize: "0.8rem", color: "#818cf8", letterSpacing: "0.15em", marginBottom: "0.75rem" }}>// LET'S.CONNECT</p>
+          <p style={{ fontFamily: "monospace", fontSize: "0.8rem", color: "#818cf8", letterSpacing: "0.15em", marginBottom: "0.75rem" }}>LET'S.CONNECT</p>
           <h2 style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 900, fontSize: "clamp(2rem, 5vw, 3.5rem)", color: textPrimary, marginBottom: "1rem" }}>Get In Touch</h2>
           <p style={{ color: textSecondary, marginBottom: "3rem", lineHeight: 1.8 }}>Have a project idea, job opportunity, or just want to connect? I'd love to hear from you.</p>
           {sent ? (
